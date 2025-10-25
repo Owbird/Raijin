@@ -4,21 +4,17 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"path/filepath"
 	"raijin/internal/config"
 	"raijin/internal/shell"
 	"slices"
 )
 
 func CreateScaffold(name string, args []string) error {
-	mainDir := name
+	appDirs := config.GetAppDirs(&name)
 
-	frontendDir := filepath.Join(mainDir, "frontend")
-	backendDir := filepath.Join(mainDir, "backend")
-	raijinJsonPath := filepath.Join(mainDir, "raijin.json")
+	frontendDir := appDirs.Frontend
 
 	os.MkdirAll(frontendDir, config.FileMode)
-	os.MkdirAll(backendDir, config.FileMode)
 
 	appConfig := config.AppConfig{Name: name}
 
@@ -27,7 +23,7 @@ func CreateScaffold(name string, args []string) error {
 		return err
 	}
 
-	os.WriteFile(raijinJsonPath, raijinJson, config.FileMode)
+	os.WriteFile(appDirs.RaijinConfig, raijinJson, config.FileMode)
 
 	createOutput, err := shell.Run(shell.ShellCmd{
 		Cmd:  "npx",
@@ -50,6 +46,26 @@ func CreateScaffold(name string, args []string) error {
 	}
 
 	log.Println(string(installOutput))
+
+	os.WriteFile(appDirs.EntryFile, []byte(`package main
+
+import "raijin/pkg/app"
+
+type AuthActions struct{}
+
+func NewAuthActions() *AuthActions {
+	return &AuthActions{}
+}
+
+func (aa *AuthActions) Login() { println("Logging in") }
+
+func main() {
+	a := app.NewApp()
+
+	a.Bind(NewAuthActions())
+
+	a.Run()
+}`), config.FileMode)
 
 	return nil
 }
