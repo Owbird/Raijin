@@ -2,7 +2,6 @@ package project
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"raijin/internal/config"
 	"raijin/internal/shell"
@@ -25,7 +24,7 @@ func CreateScaffold(name string, args []string) error {
 
 	os.WriteFile(appDirs.RaijinConfig, raijinJson, config.FileMode)
 
-	createOutput, err := shell.Run(shell.ShellCmd{
+	_, err = shell.Run(shell.ShellCmd{
 		Cmd:  "npx",
 		Dir:  frontendDir,
 		Args: slices.Concat(config.ViteCmd, args),
@@ -34,9 +33,7 @@ func CreateScaffold(name string, args []string) error {
 		return err
 	}
 
-	log.Println(string(createOutput))
-
-	installOutput, err := shell.Run(shell.ShellCmd{
+	_, err = shell.Run(shell.ShellCmd{
 		Cmd:  "npx",
 		Dir:  frontendDir,
 		Args: config.InstallCmd,
@@ -44,8 +41,6 @@ func CreateScaffold(name string, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	log.Println(string(installOutput))
 
 	os.WriteFile(appDirs.EntryFile, []byte(`package main
 
