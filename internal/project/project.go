@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"raijin/internal/config"
+	"raijin/internal/generator"
 	"raijin/internal/shell"
 	"slices"
 )
@@ -42,25 +43,7 @@ func CreateScaffold(name string, args []string) error {
 		return err
 	}
 
-	os.WriteFile(appDirs.EntryFile, []byte(`package main
-
-import "raijin/pkg/app"
-
-type AuthActions struct{}
-
-func NewAuthActions() *AuthActions {
-	return &AuthActions{}
-}
-
-func (aa *AuthActions) Login() { println("Logging in") }
-
-func main() {
-	a := app.NewApp()
-
-	a.Bind(NewAuthActions())
-
-	a.Run()
-}`), config.FileMode)
+	os.WriteFile(appDirs.EntryFile, []byte(generator.GenerateExampleEntryFile()), config.FileMode)
 
 	return nil
 }

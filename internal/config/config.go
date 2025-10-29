@@ -14,6 +14,7 @@ type AppDirs struct {
 	Frontend     string
 	RaijinConfig string
 	EntryFile    string
+	ActionsDir  string
 }
 
 const (
@@ -38,11 +39,13 @@ func GetAppDirs(path *string) AppDirs {
 	frontendDir := filepath.Join(fullPath, "frontend")
 	raijinConfig := filepath.Join(fullPath, "raijin.json")
 	entryFile := filepath.Join(fullPath, "main.go")
+	actionsDir := filepath.Join(frontendDir, "src", "actions")
 
 	return AppDirs{
 		Wd:           fullPath,
 		Frontend:     frontendDir,
 		RaijinConfig: raijinConfig,
 		EntryFile:    entryFile,
+		ActionsDir:  actionsDir,
 	}
 }
