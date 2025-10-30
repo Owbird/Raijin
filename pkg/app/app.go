@@ -1,7 +1,9 @@
 package app
 
 import (
+	"encoding/json"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"raijin/internal/config"
@@ -95,7 +97,7 @@ func (a *App) Run() {
 
 			actionMethods = append(actionMethods, generator.GenerateActionsMethod(generator.MethodMeta{
 				Name:         m,
-				ParamTypes:       params,
+				ParamTypes:   params,
 				ReturnValues: returnValues,
 			}))
 
@@ -106,4 +108,40 @@ func (a *App) Run() {
 		os.WriteFile(actionFile, []byte(actionsFileContent), config.FileMode)
 
 	}
+
+	http.HandleFunc("/action", func(w http.ResponseWriter, r *http.Request) {
+
+		query := r.URL.Query().Get("a")
+
+		defer r.Body.Close()
+
+		var data map[string]any
+
+		json.NewDecoder(r.Body).Decode(&data)
+
+		params := []reflect.Value{}
+
+		for _, value := range data {
+			params = append(params, reflect.ValueOf(value))
+		}
+
+		for _, action := range a.Actions {
+
+			for _, method := range action.Methods {
+
+				if method == query {
+
+					v := reflect.ValueOf(action.Obj)
+
+					method := v.MethodByName(query)
+
+					method.Call(params)
+
+				}
+			}
+
+		}
+	})
+
+	http.ListenAndServe(":8080", nil)
 }
