@@ -56,7 +56,7 @@ func (aa *AuthActions) Logout(username string) bool {
 func (aa *AuthActions) Auth(username, password, confirmPassword, email string) map[string]any { 
 	println("Authing") 
 
-	return map[string]
+	return map[string]any{}
 }
 
 func main() {
