@@ -110,38 +110,49 @@ func (a *App) Run() {
 	}
 
 	http.HandleFunc("/action", func(w http.ResponseWriter, r *http.Request) {
-
 		query := r.URL.Query().Get("a")
 
 		defer r.Body.Close()
 
 		var data map[string]any
-
-		json.NewDecoder(r.Body).Decode(&data)
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			http.Error(w, "invalid JSON body", http.StatusBadRequest)
+			return
+		}
 
 		params := []reflect.Value{}
-
 		for _, value := range data {
 			params = append(params, reflect.ValueOf(value))
 		}
 
 		for _, action := range a.Actions {
-
-			for _, method := range action.Methods {
-
-				if method == query {
-
+			for _, methodName := range action.Methods {
+				if methodName == query {
 					v := reflect.ValueOf(action.Obj)
-
 					method := v.MethodByName(query)
+					if !method.IsValid() {
+						http.Error(w, "method not found", http.StatusNotFound)
+						return
+					}
 
-					method.Call(params)
+					returnValues := method.Call(params)
 
+					var results []any
+					for _, rv := range returnValues {
+						results = append(results, rv.Interface())
+					}
+
+					w.Header().Set("Content-Type", "application/json")
+					if err := json.NewEncoder(w).Encode(results); err != nil {
+						http.Error(w, "failed to encode response", http.StatusInternalServerError)
+					}
+					return
 				}
 			}
-
 		}
+
+		http.Error(w, "action not found", http.StatusNotFound)
 	})
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":6669", nil)
 }
