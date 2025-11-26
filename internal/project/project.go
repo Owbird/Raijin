@@ -12,7 +12,7 @@ import (
 func CreateScaffold(name string, args []string) error {
 	appDirs := config.GetAppDirs(&name)
 
-	frontendDir := appDirs.Frontend
+	frontendDir := appDirs.FrontendSrc
 
 	os.MkdirAll(frontendDir, config.FileMode)
 

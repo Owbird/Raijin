@@ -35,37 +35,51 @@ func GenerateExampleEntryFile() string {
 
 import "raijin/pkg/app"
 
-type AuthActions struct{}
-
-func NewAuthActions() *AuthActions {
-	return &AuthActions{}
+type CounterActions struct {
+	Count float64
 }
 
-func (aa *AuthActions) Login(email, password string) bool { 
-	println("Logging in") 
+func NewCounterAction() *CounterActions {
+	return &CounterActions{Count: 0}
+}
 
+func (aa *CounterActions) Add(value float64) bool {
+	aa.Count += value
 	return true
 }
 
-func (aa *AuthActions) Logout(username string) bool { 
-	println("Logging out") 
-
+func (aa *CounterActions) Subtract(value float64) bool {
+	aa.Count -= value
 	return true
 }
 
-func (aa *AuthActions) Auth(username, password, confirmPassword, email string) map[string]any { 
-	println("Authing") 
+func (aa *CounterActions) Multiply(value float64) bool {
+	aa.Count *= value
+	return true
+}
 
-	return map[string]any{}
+func (aa *CounterActions) Divide(value float64) bool {
+	aa.Count /= value
+	return true
+}
+
+func (aa *CounterActions) Reset() bool {
+	aa.Count = 0
+	return true
+}
+
+func (aa *CounterActions) GetCount() float64 {
+	return aa.Count
 }
 
 func main() {
 	a := app.NewApp()
 
-	a.Bind(NewAuthActions())
+	a.Bind(NewCounterAction())
 
 	a.Run()
-}`
+}
+`
 }
 
 func GenerateActionsMethod(metadata MethodMeta) string {
@@ -73,20 +87,21 @@ func GenerateActionsMethod(metadata MethodMeta) string {
 	paramsOnly := []string{}
 
 	for paramIndex, paramType := range metadata.ParamTypes {
-		paramsWithTypes = append(paramsWithTypes, fmt.Sprintf("param%v: %v", paramIndex+1, paramType))
+
+		paramsWithTypes = append(paramsWithTypes, fmt.Sprintf("param%v: %v", paramIndex+1, TypeMap[paramType]))
 
 		paramsOnly = append(paramsOnly, fmt.Sprintf("param%v", paramIndex+1))
 	}
 
 	content := fmt.Sprintf(`export const %v = async (%v): Promise<%v> => {
 
-		const res = await fetch("", {method:"POST", body: JSON.stringify({%v})})
+		const res = await fetch("http://localhost:3000/action?a=%v", {method:"POST", body: JSON.stringify({%v})})
 
 		const data = (await res.json())
 
 		return data
 
-		}`, metadata.Name, strings.Join(paramsWithTypes, ", "), strings.Join(metadata.ReturnValues, "|"),
+		}`, metadata.Name, strings.Join(paramsWithTypes, ", "), strings.Join(metadata.ReturnValues, "|"), metadata.Name,
 		strings.Join(paramsOnly, ","),
 	)
 

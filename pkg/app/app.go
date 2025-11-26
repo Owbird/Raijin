@@ -2,9 +2,11 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"raijin/internal/config"
 	"raijin/internal/generator"
@@ -109,6 +111,43 @@ func (a *App) Run() {
 
 	}
 
+	buildCmd := exec.Command("pnpm", "-C", appDirs.FrontendSrc, "build")
+	log.Println(buildCmd.String())
+	res, err := buildCmd.Output()
+	if err != nil {
+		log.Fatalln(err)
+
+	}
+
+	log.Println(string(res))
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, appDirs.FrontendDist+"/index.html")
+	})
+
+	http.HandleFunc("/assets/", func(w http.ResponseWriter, r *http.Request) {
+
+		frontendDir := appDirs.FrontendDist
+
+		path := r.URL.Path
+		data, err := os.ReadFile(filepath.Join(frontendDir, path))
+		if err != nil {
+			fmt.Print(err)
+			http.NotFound(w, r)
+			return
+		}
+		if strings.HasSuffix(path, ".js") {
+			w.Header().Set("Content-Type", "text/javascript")
+		} else if strings.HasSuffix(path, ".css") {
+			w.Header().Set("Content-Type", "text/css")
+		}
+		_, err = w.Write(data)
+		if err != nil {
+			fmt.Print(err)
+		}
+
+	})
+
 	http.HandleFunc("/action", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query().Get("a")
 
@@ -154,5 +193,7 @@ func (a *App) Run() {
 		http.Error(w, "action not found", http.StatusNotFound)
 	})
 
-	http.ListenAndServe(":6669", nil)
+	
+	log.Println("Listening on :3000")
+	http.ListenAndServe(":3000", nil)
 }
