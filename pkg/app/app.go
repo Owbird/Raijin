@@ -3,13 +3,13 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/owbird/raijin/internal/config"
+	"github.com/owbird/raijin/internal/generator"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"github.com/owbird/raijin/internal/config"
-	"github.com/owbird/raijin/internal/generator"
 	"reflect"
 	"strings"
 )
@@ -48,6 +48,11 @@ func (a *App) Bind(act any) {
 func (a *App) Run() {
 	appDirs := config.GetAppDirs(nil)
 
+	err := os.RemoveAll(appDirs.ActionsDir)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	for _, act := range a.Actions {
 		log.Println(act.Obj, act.Pkg, act.Methods)
 
@@ -69,8 +74,6 @@ func (a *App) Run() {
 			log.Println("*****************")
 
 			log.Printf("Method Name: %v\n", m)
-
-			// os.WriteFile(appDirs.ActionsDir, []byte(), config.FileMode)
 
 			method := v.MethodByName(m)
 
@@ -193,7 +196,6 @@ func (a *App) Run() {
 		http.Error(w, "action not found", http.StatusNotFound)
 	})
 
-	
 	log.Println("Listening on :3000")
 	http.ListenAndServe(":3000", nil)
 }
