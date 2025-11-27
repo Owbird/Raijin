@@ -1,6 +1,6 @@
 package main
 
-import "raijin/cmd"
+import "github.com/owbird/raijin/cmd"
 
 func main() {
 	cmd.Execute()

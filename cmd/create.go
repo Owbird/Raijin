@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"log"
-	"raijin/internal/project"
+	"github.com/owbird/raijin/internal/project"
 
 	"github.com/spf13/cobra"
 )

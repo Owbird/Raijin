@@ -33,7 +33,7 @@ var TypeMap = map[string]string{
 func GenerateExampleEntryFile() string {
 	return `package main
 
-import "raijin/pkg/app"
+import "github.com/owbird/raijin/pkg/app"
 
 type CounterActions struct {
 	Count float64

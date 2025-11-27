@@ -8,8 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"raijin/internal/config"
-	"raijin/internal/generator"
+	"github.com/owbird/raijin/internal/config"
+	"github.com/owbird/raijin/internal/generator"
 	"reflect"
 	"strings"
 )

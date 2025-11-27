@@ -3,9 +3,9 @@ package project
 import (
 	"encoding/json"
 	"os"
-	"raijin/internal/config"
-	"raijin/internal/generator"
-	"raijin/internal/shell"
+	"github.com/owbird/raijin/internal/config"
+	"github.com/owbird/raijin/internal/generator"
+	"github.com/owbird/raijin/internal/shell"
 	"slices"
 )
 
