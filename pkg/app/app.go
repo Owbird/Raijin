@@ -196,6 +196,6 @@ func (a *App) Run() {
 		http.Error(w, "action not found", http.StatusNotFound)
 	})
 
-	log.Println("Listening on :3000")
-	http.ListenAndServe(":3000", nil)
+	log.Println("Listening on :9092")
+	http.ListenAndServe(":9092", nil)
 }
