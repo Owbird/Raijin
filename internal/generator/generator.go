@@ -95,7 +95,7 @@ func GenerateActionsMethod(metadata MethodMeta) string {
 
 	content := fmt.Sprintf(`export const %v = async (%v): Promise<%v> => {
 
-		const res = await fetch("http://localhost:3000/action?a=%v", {method:"POST", body: JSON.stringify({%v})})
+		const res = await fetch("/action?a=%v", {method:"POST", body: JSON.stringify({%v})})
 
 		const data = (await res.json())
 
